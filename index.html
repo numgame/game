@@ -401,11 +401,11 @@ class NumberTracker {
     this.numbersContainer.className = "container";
     
     // Input field for entering numbers
-    this.inputField = document.createElement("input");
-    this.inputField.type = "text";
-    this.inputField.placeholder = "Enter a number";
-    this.inputField.inputMode = "numeric"; // Keep keyboard on numbers/symbols
-    this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
+this.inputField = document.createElement("input");
+this.inputField.type = "text";
+this.inputField.placeholder = "Enter a number";
+this.inputField.inputMode = "tel"; // Use "tel" for numbers + symbols + Enter
+this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     
     // Undo button to remove the last number
     this.undoButton = document.createElement("button");
