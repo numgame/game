@@ -51,12 +51,21 @@
         }
 
         .game-container.small {
-            width: 70%; /* Smaller width */
-            padding: 10px; /* Smaller padding */
+            width: 80%; /* Smaller width */
+            padding: 15px; /* Smaller padding */
+        }
+
+        .game-container.smaller {
+            width: 70%; /* Smallest width */
+            padding: 10px; /* Smallest padding */
         }
 
         .game-container.small .header {
             font-size: 20px; /* Smaller header font size */
+        }
+
+        .game-container.smaller .header {
+            font-size: 18px; /* Smallest header font size */
         }
 
         .game-container.small input[type="text"],
@@ -64,14 +73,31 @@
             font-size: 14px; /* Smaller input font size */
         }
 
+        .game-container.smaller input[type="text"],
+        .game-container.smaller input[type="password"] {
+            font-size: 12px; /* Smallest input font size */
+        }
+
         .game-container.small button {
             font-size: 14px; /* Smaller button font size */
             padding: 8px 16px; /* Smaller button padding */
         }
 
+        .game-container.smaller button {
+            font-size: 12px; /* Smallest button font size */
+            padding: 6px 12px; /* Smallest button padding */
+        }
+
         .game-container.small .container span {
-            font-size: 16px; /* Smaller number font size */
-            padding: 8px; /* Smaller number padding */
+            font-size: 14px; /* Smaller number font size */
+            padding: 6px; /* Smaller number padding */
+            min-width: 30px; /* Smaller min-width */
+        }
+
+        .game-container.smaller .container span {
+            font-size: 12px; /* Smallest number font size */
+            padding: 4px; /* Smallest number padding */
+            min-width: 25px; /* Smallest min-width */
         }
 
         /* Password container */
@@ -86,8 +112,9 @@
 
         /* Number display container */
         .container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 6 columns */
+            grid-template-rows: repeat(6, 1fr); /* 6 rows */
             gap: 5px;
             justify-content: center;
             margin-bottom: 20px;
@@ -269,6 +296,13 @@
             margin-top: 10px;
         }
 
+        /* Small warning text */
+        .small-warning {
+            font-size: 14px; /* Smaller font size */
+            margin: 10px 0; /* Add some margin */
+            color: #ffc107; /* Warning color */
+        }
+
         /* Responsive design */
         @media (max-width: 600px) {
             .container span {
@@ -370,12 +404,18 @@ class NumberTracker {
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
     this.inputField.placeholder = "Enter a number";
+    this.inputField.inputMode = "numeric"; // Keep keyboard on numbers/symbols
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     
     // Undo button to remove the last number
     this.undoButton = document.createElement("button");
     this.undoButton.textContent = "Undo";
     this.undoButton.addEventListener("click", () => this.undoLastEntry());
+    
+    // Reset button to clear all numbers
+    this.resetButton = document.createElement("button");
+    this.resetButton.textContent = "Reset";
+    this.resetButton.addEventListener("click", () => this.resetGame());
     
     // Voice input buttons
     this.voiceButton = document.createElement("button");
@@ -417,13 +457,13 @@ class NumberTracker {
     this.alertContainer.appendChild(alertButtons);
     
     this.warningMessage = document.createElement("div");
-    this.warningMessage.className = "warning";
+    this.warningMessage.className = "warning small-warning"; // Add small-warning class
     
     this.errorMessage = document.createElement("p");
     this.errorMessage.className = "error-message";
     
     // Append everything to the game container
-    gameContainer.append(this.numbersContainer, this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.warningMessage, this.errorMessage);
+    gameContainer.append(this.numbersContainer, this.warningMessage, this.inputField, this.undoButton, this.resetButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.errorMessage);
 
     // Add "Smaller" button for the game container
     const smallerButton = document.createElement("button");
@@ -435,7 +475,14 @@ class NumberTracker {
   // Toggle game container size
   toggleGameContainerSize() {
     const gameContainer = document.querySelector(".game-container");
-    gameContainer.classList.toggle("small");
+    if (!gameContainer.classList.contains("small") && !gameContainer.classList.contains("smaller")) {
+      gameContainer.classList.add("small");
+    } else if (gameContainer.classList.contains("small")) {
+      gameContainer.classList.remove("small");
+      gameContainer.classList.add("smaller");
+    } else if (gameContainer.classList.contains("smaller")) {
+      gameContainer.classList.remove("smaller");
+    }
   }
 
   // Toggle minimize alerts
@@ -480,6 +527,11 @@ class NumberTracker {
     // Clear error message if input is valid
     this.errorMessage.textContent = "";
 
+    // Ensure a maximum of 36 numbers
+    if (this.numbers.length >= 36) {
+      this.numbers.shift(); // Remove the first number
+    }
+
     // Add the new number
     this.numbers.push(number);
 
@@ -492,6 +544,17 @@ class NumberTracker {
     // Check for triplets and warnings
     this.checkForTriplets();
     this.checkForWarnings();
+  }
+
+  // Reset the game
+  resetGame() {
+    this.numbers = [];
+    localStorage.setItem("numbers", JSON.stringify(this.numbers));
+    this.render();
+    this.alerts = [];
+    this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
+    this.warningMessage.textContent = "";
+    this.errorMessage.textContent = "";
   }
 
   // Convert spoken words to numbers
@@ -624,17 +687,18 @@ class NumberTracker {
     // Clear the existing numbers container
     this.numbersContainer.innerHTML = "";
     
-    // Render the numbers
-    this.numbers.forEach((n) => {
+    // Render the numbers (up to 36)
+    const numbersToDisplay = this.numbers.slice(-36);
+    for (let i = 0; i < 36; i++) {
       const span = document.createElement("span");
-      span.textContent = n; // Removed the "|" prefix
+      span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || ""; // Display "0" for 0, blank for null/undefined
       
-      if (this.colorMap.red.has(n)) span.style.color = "red";
-      else if (this.colorMap.black.has(n)) span.style.color = "black";
-      else if (this.colorMap.green.has(n)) span.style.color = "green";
+      if (this.colorMap.red.has(numbersToDisplay[i])) span.style.color = "red";
+      else if (this.colorMap.black.has(numbersToDisplay[i])) span.style.color = "black";
+      else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
       
       this.numbersContainer.appendChild(span);
-    });
+    }
   }
 
   // Initialize voice recognition
