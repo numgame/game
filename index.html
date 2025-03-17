@@ -332,109 +332,6 @@
 // If updating, increment version number and retain this comment
 
 class NumberTracker {
-    // Inside the NumberTracker class
-
-// Modify the checkForTriplets method
-checkForTriplets() {
-  const countMap = {};
-  const newAlerts = new Set();
-  
-  // Count occurrences of each number
-  for (const num of this.numbers) {
-    countMap[num] = (countMap[num] || 0) + 1;
-    if (countMap[num] === 3) {
-      newAlerts.add(num); // Add to active alerts
-    }
-  }
-  
-  // Update alerts (newest at the top)
-  const previousAlerts = new Set(this.alerts);
-  this.alerts = [...newAlerts].reverse();
-  
-  // Clear the existing alerts but keep the buttons
-  this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
-  
-  // Re-add the buttons
-  const alertButtons = document.createElement("div");
-  alertButtons.className = "alert-buttons";
-  
-  // Minimize button
-  this.minimizeButton = document.createElement("button");
-  this.minimizeButton.innerHTML = "&#9660;"; // Down arrow symbol
-  this.minimizeButton.addEventListener("click", () => this.toggleMinimize());
-  
-  // Resize button
-  this.resizeButton = document.createElement("button");
-  this.resizeButton.innerHTML = "&#9723;"; // Square symbol
-  this.resizeButton.addEventListener("click", () => this.toggleResize());
-  
-  alertButtons.append(this.minimizeButton, this.resizeButton);
-  this.alertContainer.appendChild(alertButtons);
-  
-  // Display active alerts
-  this.alerts.forEach((num, index) => {
-    const alert = document.createElement("div");
-    alert.className = "alert";
-    
-    // Set background color based on number color
-    if (this.colorMap.red.has(num)) {
-      alert.style.backgroundColor = "#cc2020"; // Red
-    } else if (this.colorMap.green.has(num)) {
-      alert.style.backgroundColor = "#23913c"; // Green
-    } else if (this.colorMap.black.has(num)) {
-      alert.style.backgroundColor = "#1e1f22"; // Black
-    }
-    
-    alert.textContent = `Number ${num} appeared three times!`;
-    this.alertContainer.appendChild(alert);
-    
-    // Only animate if it's a new alert
-    if (!previousAlerts.has(num)) {
-      setTimeout(() => alert.classList.add("show"), 10); // Trigger slide-up animation
-    } else {
-      alert.classList.add("show"); // Show without animation
-    }
-  });
-
-  // Update the latest alert text above the 6x6 grid
-  if (this.alerts.length > 0) {
-    this.warningMessage.textContent = `Number ${this.alerts[0]} appeared three times!`;
-  } else {
-    this.warningMessage.textContent = "";
-  }
-}
-
-// Modify the render method
-render() {
-  // Clear the existing numbers container
-  this.numbersContainer.innerHTML = "";
-  
-  // Count occurrences of each number
-  const countMap = {};
-  for (const num of this.numbers) {
-    countMap[num] = (countMap[num] || 0) + 1;
-  }
-  
-  // Render the numbers (up to 36)
-  const numbersToDisplay = this.numbers.slice(-36);
-  for (let i = 0; i < 36; i++) {
-    const span = document.createElement("span");
-    span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || ""; // Display "0" for 0, blank for null/undefined
-    
-    // Set background color if the number appears 3 or more times
-    if (countMap[numbersToDisplay[i]] >= 3) {
-      span.style.backgroundColor = "#ffe789"; // Yellow background
-    } else {
-      span.style.backgroundColor = ""; // Default background
-    }
-    
-    if (this.colorMap.red.has(numbersToDisplay[i])) span.style.color = "red";
-    else if (this.colorMap.black.has(numbersToDisplay[i])) span.style.color = "black";
-    else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
-    
-    this.numbersContainer.appendChild(span);
-  }
-}
   constructor() {
     // Define valid numbers for the game (including "00")
     this.validNumbers = new Set([0, "00", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]);
@@ -532,23 +429,10 @@ render() {
     this.resetButton = document.createElement("button");
     this.resetButton.textContent = "Reset";
     this.resetButton.addEventListener("click", () => this.resetGame());
-    
-    // Voice input buttons
-    this.voiceButton = document.createElement("button");
-    this.voiceButton.textContent = "Start Voice Input";
-    this.voiceButton.classList.add("voice-button");
-    this.voiceButton.addEventListener("click", () => this.initVoiceRecognition());
-    
-    this.stopVoiceButton = document.createElement("button");
-    this.stopVoiceButton.textContent = "Stop Voice Input";
-    this.stopVoiceButton.classList.add("stop-voice-button");
-    this.stopVoiceButton.style.display = "none";
-    this.stopVoiceButton.addEventListener("click", () => this.stopVoiceRecognition());
-    
+            
     // Status and messages
     this.voiceStatus = document.createElement("p");
     this.voiceStatus.className = "voice-status";
-    this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
     
     // Alert container
     this.alertContainer = document.createElement("div");
@@ -849,7 +733,6 @@ render() {
     
     this.recognition.onerror = () => {
       this.errorMessage.textContent = "Could not recognize speech. Try again.";
-      this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
     };
     
     this.recognition.onend = () => {
