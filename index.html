@@ -675,22 +675,36 @@ checkForTriplets() {
   // Render the list of numbers
   render() {
     // Clear the existing numbers container
-    this.numbersContainer.innerHTML = "";
-    
-    // Render the numbers (up to 36)
-    const numbersToDisplay = this.numbers.slice(-36);
-    for (let i = 0; i < 36; i++) {
-      const span = document.createElement("span");
-      span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || ""; // Display "0" for 0, blank for null/undefined
-      
-      if (this.colorMap.red.has(numbersToDisplay[i])) span.style.color = "red";
-      else if (this.colorMap.black.has(numbersToDisplay[i])) span.style.color = "black";
-      else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
-      
-      this.numbersContainer.appendChild(span);
-    }
+render() {
+  // Clear the existing numbers container
+  this.numbersContainer.innerHTML = "";
+  
+  // Count occurrences of each number
+  const countMap = {};
+  for (const num of this.numbers) {
+    countMap[num] = (countMap[num] || 0) + 1;
   }
-
+  
+  // Render the numbers (up to 36)
+  const numbersToDisplay = this.numbers.slice(-36);
+  for (let i = 0; i < 36; i++) {
+    const span = document.createElement("span");
+    span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || ""; // Display "0" for 0, blank for null/undefined
+    
+    // Set background color if the number appears 3 or more times
+    if (countMap[numbersToDisplay[i]] >= 3) {
+      span.style.backgroundColor = "#ffe789"; // Yellow background
+    } else {
+      span.style.backgroundColor = ""; // Default background
+    }
+    
+    if (this.colorMap.red.has(numbersToDisplay[i])) span.style.color = "red";
+    else if (this.colorMap.black.has(numbersToDisplay[i])) span.style.color = "black";
+    else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
+    
+    this.numbersContainer.appendChild(span);
+  }
+}
   // Initialize voice recognition
   initVoiceRecognition() {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
