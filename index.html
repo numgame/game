@@ -590,67 +590,74 @@ class NumberTracker {
   }
 
   // Check for triplets and display alerts
-  checkForTriplets() {
-    const countMap = {};
-    const newAlerts = new Set();
+checkForTriplets() {
+  const countMap = {};
+  const newAlerts = new Set();
+  
+  // Count occurrences of each number
+  for (const num of this.numbers) {
+    countMap[num] = (countMap[num] || 0) + 1;
+    if (countMap[num] === 3) {
+      newAlerts.add(num); // Add to active alerts
+    }
+  }
+  
+  // Update alerts (newest at the top)
+  const previousAlerts = new Set(this.alerts);
+  this.alerts = [...newAlerts].reverse();
+  
+  // Clear the existing alerts but keep the buttons
+  this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
+  
+  // Re-add the buttons
+  const alertButtons = document.createElement("div");
+  alertButtons.className = "alert-buttons";
+  
+  // Minimize button
+  this.minimizeButton = document.createElement("button");
+  this.minimizeButton.innerHTML = "&#9660;"; // Down arrow symbol
+  this.minimizeButton.addEventListener("click", () => this.toggleMinimize());
+  
+  // Resize button
+  this.resizeButton = document.createElement("button");
+  this.resizeButton.innerHTML = "&#9723;"; // Square symbol
+  this.resizeButton.addEventListener("click", () => this.toggleResize());
+  
+  alertButtons.append(this.minimizeButton, this.resizeButton);
+  this.alertContainer.appendChild(alertButtons);
+  
+  // Display active alerts
+  this.alerts.forEach((num, index) => {
+    const alert = document.createElement("div");
+    alert.className = "alert";
     
-    // Count occurrences of each number
-    for (const num of this.numbers) {
-      countMap[num] = (countMap[num] || 0) + 1;
-      if (countMap[num] === 3) {
-        newAlerts.add(num); // Add to active alerts
-      }
+    // Set background color based on number color
+    if (this.colorMap.red.has(num)) {
+      alert.style.backgroundColor = "#cc2020"; // Red
+    } else if (this.colorMap.green.has(num)) {
+      alert.style.backgroundColor = "#23913c"; // Green
+    } else if (this.colorMap.black.has(num)) {
+      alert.style.backgroundColor = "#1e1f22"; // Black
     }
     
-    // Update alerts (newest at the top)
-    const previousAlerts = new Set(this.alerts);
-    this.alerts = [...newAlerts].reverse();
+    alert.textContent = `Number ${num} appeared three times!`;
+    this.alertContainer.appendChild(alert);
     
-    // Clear the existing alerts but keep the buttons
-    this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
-    
-    // Re-add the buttons
-    const alertButtons = document.createElement("div");
-    alertButtons.className = "alert-buttons";
-    
-    // Minimize button
-    this.minimizeButton = document.createElement("button");
-    this.minimizeButton.innerHTML = "&#9660;"; // Down arrow symbol
-    this.minimizeButton.addEventListener("click", () => this.toggleMinimize());
-    
-    // Resize button
-    this.resizeButton = document.createElement("button");
-    this.resizeButton.innerHTML = "&#9723;"; // Square symbol
-    this.resizeButton.addEventListener("click", () => this.toggleResize());
-    
-    alertButtons.append(this.minimizeButton, this.resizeButton);
-    this.alertContainer.appendChild(alertButtons);
-    
-    // Display active alerts
-    this.alerts.forEach((num, index) => {
-      const alert = document.createElement("div");
-      alert.className = "alert";
-      
-      // Set background color based on number color
-      if (this.colorMap.red.has(num)) {
-        alert.style.backgroundColor = "#cc2020"; // Red
-      } else if (this.colorMap.green.has(num)) {
-        alert.style.backgroundColor = "#23913c"; // Green
-      } else if (this.colorMap.black.has(num)) {
-        alert.style.backgroundColor = "#1e1f22"; // Black
-      }
-      
-      alert.textContent = `Number ${num} appeared three times!`;
-      this.alertContainer.appendChild(alert);
-      
-      // Only animate if it's a new alert
-      if (!previousAlerts.has(num)) {
-        setTimeout(() => alert.classList.add("show"), 10); // Trigger slide-up animation
-      } else {
-        alert.classList.add("show"); // Show without animation
-      }
-    });
+    // Only animate if it's a new alert
+    if (!previousAlerts.has(num)) {
+      setTimeout(() => alert.classList.add("show"), 10); // Trigger slide-up animation
+    } else {
+      alert.classList.add("show"); // Show without animation
+    }
+  });
+
+  // Update the latest alert text above the 6x6 grid
+  if (this.alerts.length > 0) {
+    this.warningMessage.textContent = `Number ${this.alerts[0]} appeared three times!`;
+  } else {
+    this.warningMessage.textContent = "";
   }
+}
 
   // Check for warnings when a triplet is about to disappear
   checkForWarnings() {
