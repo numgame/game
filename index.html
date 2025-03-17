@@ -7,7 +7,7 @@
 </head>
 <body>
     <script>
-        // Version: v1.2
+        // Version: v1.3
 // If updating, increment version number and retain this comment
 
 class NumberTracker {
@@ -18,7 +18,7 @@ class NumberTracker {
       black: new Set([2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]),
       green: new Set([0, "00"])
     };
-    this.numbers = JSON.parse(localStorage.getItem("numbers")) || [];
+    this.numbers = Array.from(this.validNumbers).filter(n => n !== "00");
     this.enteredNumbers = [];
     this.undoStack = [];
     this.recognition = null;
@@ -27,6 +27,10 @@ class NumberTracker {
 
   checkPassword() {
     document.body.innerHTML = "";
+    const versionDisplay = document.createElement("p");
+    versionDisplay.textContent = "Version: v1.3";
+    versionDisplay.style.fontWeight = "bold";
+    
     const passwordInput = document.createElement("input");
     passwordInput.type = "password";
     passwordInput.placeholder = "Enter password";
@@ -43,102 +47,21 @@ class NumberTracker {
       }
     });
     
-    document.body.append(passwordInput, submitButton);
-  }
-
-  createUI() {
-    const versionDisplay = document.createElement("p");
-    versionDisplay.textContent = "Version: v1.2";
-    versionDisplay.style.fontWeight = "bold";
-    
-    this.inputField = document.createElement("input");
-    this.inputField.type = "text";
-    this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
-    
-    this.enterButton = document.createElement("button");
-    this.enterButton.textContent = "Enter";
-    this.enterButton.addEventListener("click", () => this.processInput(this.inputField.value));
-    
-    this.undoButton = document.createElement("button");
-    this.undoButton.textContent = "Undo";
-    this.undoButton.addEventListener("click", () => this.undoLastEntry());
-    
-    this.voiceButton = document.createElement("button");
-    this.voiceButton.textContent = "Start Voice Input";
-    this.voiceButton.addEventListener("click", () => this.initVoiceRecognition());
-    
-    this.stopVoiceButton = document.createElement("button");
-    this.stopVoiceButton.textContent = "Stop Voice Input";
-    this.stopVoiceButton.style.display = "none";
-    this.stopVoiceButton.addEventListener("click", () => this.stopVoiceRecognition());
-    
-    this.voiceStatus = document.createElement("p");
-    this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
-    
-    this.message = document.createElement("div");
-    this.warning = document.createElement("p");
-    this.errorMessage = document.createElement("p");
-    this.errorMessage.style.color = "red";
-    
-    this.enteredNumbersContainer = document.createElement("div");
-    this.enteredNumbersContainer.textContent = "Entered Numbers: ";
-    this.enteredNumbersContainer.style.marginTop = "20px";
-    
-    document.body.append(versionDisplay, this.inputField, this.enterButton, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage, this.enteredNumbersContainer);
-  }
-
-  handleKeydown(event) {
-    if (event.key === "Enter") {
-      this.processInput(this.inputField.value);
-    }
+    document.body.append(versionDisplay, passwordInput, submitButton);
   }
 
   processInput(value) {
-    if (this.validNumbers.has(value)) {
-      this.enteredNumbers.push(value);
+    const numberValue = value === "00" ? "00" : parseInt(value, 10);
+    if (this.validNumbers.has(numberValue)) {
+      this.enteredNumbers.push(numberValue);
       this.updateEnteredNumbers();
       this.inputField.value = "";
+      this.errorMessage.textContent = "";
     } else {
       this.errorMessage.textContent = "Invalid number. Please enter a valid roulette number.";
     }
   }
-
-  updateEnteredNumbers() {
-    this.enteredNumbersContainer.textContent = "Entered Numbers: " + this.enteredNumbers.join(", ");
-  }
-
-  render() {
-    document.body.innerHTML = "";
-    this.createUI();
-    const container = document.createElement("div");
-    container.style.display = "flex";
-    container.style.flexWrap = "wrap";
-    container.style.gap = "5px";
-    container.style.justifyContent = "center";
-    container.style.padding = "10px";
-    container.style.maxWidth = "100vw";
-    container.style.overflowX = "hidden";
-
-    this.numbers.forEach((n) => {
-      const span = document.createElement("span");
-      span.textContent = `| ${n} `;
-      span.style.padding = "5px";
-      span.style.fontWeight = "bold";
-      span.style.fontSize = "18px";
-      span.style.minWidth = "40px";
-      span.style.textAlign = "center";
-      span.style.flex = "1 1 auto";
-      
-      if (this.colorMap.red.has(n)) span.style.color = "red";
-      else if (this.colorMap.black.has(n)) span.style.color = "black";
-      else if (this.colorMap.green.has(n)) span.style.color = "green";
-      
-      container.appendChild(span);
-    });
-    
-    document.body.prepend(container);
-  }
-}
+} 
 
 new NumberTracker();
     </script>
