@@ -47,6 +47,31 @@
             max-width: 600px;
             text-align: center;
             border: 2px solid #4d6bfe; /* Button color outline */
+            transition: transform 0.3s ease, width 0.3s ease, padding 0.3s ease;
+        }
+
+        .game-container.small {
+            width: 70%; /* Smaller width */
+            padding: 10px; /* Smaller padding */
+        }
+
+        .game-container.small .header {
+            font-size: 20px; /* Smaller header font size */
+        }
+
+        .game-container.small input[type="text"],
+        .game-container.small input[type="password"] {
+            font-size: 14px; /* Smaller input font size */
+        }
+
+        .game-container.small button {
+            font-size: 14px; /* Smaller button font size */
+            padding: 8px 16px; /* Smaller button padding */
+        }
+
+        .game-container.small .container span {
+            font-size: 16px; /* Smaller number font size */
+            padding: 8px; /* Smaller number padding */
         }
 
         /* Password container */
@@ -61,9 +86,8 @@
 
         /* Number display container */
         .container {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr); /* 6 columns */
-            grid-template-rows: repeat(6, 1fr); /* 6 rows */
+            display: flex;
+            flex-wrap: wrap;
             gap: 5px;
             justify-content: center;
             margin-bottom: 20px;
@@ -196,7 +220,6 @@
             margin: 5px 0;
             padding: 10px;
             border-radius: 5px;
-            border-left: 4px solid #28a745; /* Green accent */
             opacity: 0;
             transform: translateY(-20px);
             transition: opacity 0.5s ease, transform 0.5s ease, font-size 0.3s ease, padding 0.3s ease;
@@ -246,11 +269,6 @@
             margin-top: 10px;
         }
 
-        /* Toggle buttons */
-        .toggle-buttons {
-            margin-bottom: 20px;
-        }
-
         /* Responsive design */
         @media (max-width: 600px) {
             .container span {
@@ -291,14 +309,13 @@ class NumberTracker {
       green: new Set([0, "00"])
     };
     
-    // Load numbers from localStorage or initialize with 1-36
-    this.numbers = JSON.parse(localStorage.getItem("numbers")) || Array.from({ length: 36 }, (_, i) => i + 1);
+    // Load numbers from localStorage or initialize with an empty array
+    this.numbers = JSON.parse(localStorage.getItem("numbers")) || [];
     
     // Initialize other properties
     this.undoStack = [];
     this.recognition = null;
     this.alerts = []; // Track active alerts
-    this.showAllNumbers = true; // Toggle between showing all numbers or only new ones
     this.checkPassword();
   }
 
@@ -408,22 +425,17 @@ class NumberTracker {
     // Append everything to the game container
     gameContainer.append(this.numbersContainer, this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.warningMessage, this.errorMessage);
 
-    // Add toggle buttons outside the game container
-    const toggleButtons = document.createElement("div");
-    toggleButtons.className = "toggle-buttons";
-    
-    const toggleAllNumbersButton = document.createElement("button");
-    toggleAllNumbersButton.textContent = "Show All Numbers";
-    toggleAllNumbersButton.addEventListener("click", () => this.toggleShowAllNumbers());
-    
-    toggleButtons.appendChild(toggleAllNumbersButton);
-    document.body.insertBefore(toggleButtons, gameContainer);
+    // Add "Smaller" button for the game container
+    const smallerButton = document.createElement("button");
+    smallerButton.textContent = "Smaller";
+    smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
+    document.body.insertBefore(smallerButton, gameContainer);
   }
 
-  // Toggle between showing all numbers or only new ones
-  toggleShowAllNumbers() {
-    this.showAllNumbers = !this.showAllNumbers;
-    this.render();
+  // Toggle game container size
+  toggleGameContainerSize() {
+    const gameContainer = document.querySelector(".game-container");
+    gameContainer.classList.toggle("small");
   }
 
   // Toggle minimize alerts
@@ -448,6 +460,8 @@ class NumberTracker {
       if (input) {
         this.processInput(input);
         this.inputField.value = "";
+        // Keep the keyboard open on mobile devices
+        this.inputField.focus();
       }
     }
   }
@@ -466,8 +480,7 @@ class NumberTracker {
     // Clear error message if input is valid
     this.errorMessage.textContent = "";
 
-    // Remove the first number and add the new number
-    this.numbers.shift();
+    // Add the new number
     this.numbers.push(number);
 
     // Save to localStorage
@@ -547,15 +560,6 @@ class NumberTracker {
     const previousAlerts = new Set(this.alerts);
     this.alerts = [...newAlerts].reverse();
     
-    // Define the gradient colors
-    const gradientColors = [
-      "#23913c", // Newest alert color
-      "#1a7a32",
-      "#116228",
-      "#084a1e",
-      "#045b18"  // Darkest alert color
-    ];
-    
     // Clear the existing alerts but keep the buttons
     this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
     
@@ -581,12 +585,16 @@ class NumberTracker {
       const alert = document.createElement("div");
       alert.className = "alert";
       
-      // Calculate gradient for each alert
-      const gradientIndex = Math.floor((index / (this.alerts.length - 1)) * (gradientColors.length - 1));
-      const gradientColor = gradientColors[gradientIndex];
-      alert.style.background = gradientColor;
+      // Set background color based on number color
+      if (this.colorMap.red.has(num)) {
+        alert.style.backgroundColor = "#cc2020"; // Red
+      } else if (this.colorMap.green.has(num)) {
+        alert.style.backgroundColor = "#23913c"; // Green
+      } else if (this.colorMap.black.has(num)) {
+        alert.style.backgroundColor = "#1e1f22"; // Black
+      }
       
-      alert.textContent = `Number ${num} appears 3 times!`;
+      alert.textContent = `Number ${num} appeared three times!`;
       this.alertContainer.appendChild(alert);
       
       // Only animate if it's a new alert
@@ -616,11 +624,8 @@ class NumberTracker {
     // Clear the existing numbers container
     this.numbersContainer.innerHTML = "";
     
-    // Determine which numbers to display
-    const numbersToDisplay = this.showAllNumbers ? this.numbers : this.numbers.slice(-36);
-    
     // Render the numbers
-    numbersToDisplay.forEach((n) => {
+    this.numbers.forEach((n) => {
       const span = document.createElement("span");
       span.textContent = n; // Removed the "|" prefix
       
