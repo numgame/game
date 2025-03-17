@@ -9,7 +9,7 @@
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background-color: #212327;
             color: #ffffff;
             display: flex;
@@ -34,15 +34,33 @@
             margin-bottom: 20px;
         }
 
-        .game-container {
+        .password-container {
             background-color: #292a2d;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid #4d6bfe;
+        }
+
+        .game-container {
+            background-color: #292a2d;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 95%;
             max-width: 600px;
             text-align: center;
             border: 2px solid #4d6bfe;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .game-container.smaller {
+            max-width: 400px;
+            padding: 10px;
         }
 
         .input-group {
@@ -56,7 +74,7 @@
         input[type="text"], input[type="password"] {
             width: 100%;
             padding: 10px;
-            font-size: 16px !important;
+            font-size: 16px;
             border: 2px solid #404045;
             border-radius: 5px;
             background-color: #404045;
@@ -73,27 +91,31 @@
             color: #ffffff;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .container {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(6, 1fr);
             gap: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             background-color: #f4f4f4;
             padding: 10px;
             border-radius: 5px;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .container span {
-            padding: 10px;
-            font-size: 18px;
+            padding: 8px;
+            font-size: 16px;
             background-color: #ffffff;
             border-radius: 5px;
-            min-width: 40px;
+            aspect-ratio: 1;
             text-align: center;
             color: #000000;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .alert-warning-group {
@@ -114,9 +136,30 @@
             justify-content: center;
         }
 
+        .top-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 600px) {
+            .container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .game-container {
+                width: 100%;
+                padding: 10px;
+            }
+            
             input[type="text"], input[type="password"] {
-                font-size: 16px !important;
+                font-size: 14px;
+                padding: 8px;
+            }
+            
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
             }
         }
     </style>
@@ -143,6 +186,7 @@ class NumberTracker {
     const passwordInput = document.createElement("input");
     passwordInput.type = "password";
     passwordInput.placeholder = "Enter password";
+    passwordInput.style.marginBottom = "10px";
     
     const submitButton = document.createElement("button");
     submitButton.textContent = "Submit";
@@ -166,19 +210,38 @@ class NumberTracker {
   }
 
   createUI() {
-    const gameContainer = document.createElement("div");
-    gameContainer.className = "game-container";
-    document.body.appendChild(gameContainer);
+    // Create top controls
+    this.topControls = document.createElement("div");
+    this.topControls.className = "top-controls";
     
+    this.smallerButton = document.createElement("button");
+    this.smallerButton.textContent = "Smaller";
+    this.smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
+    
+    this.resetButton = document.createElement("button");
+    this.resetButton.textContent = "Reset";
+    this.resetButton.addEventListener("click", () => this.resetGame());
+    
+    this.topControls.append(this.smallerButton, this.resetButton);
+    document.body.appendChild(this.topControls);
+    
+    // Create game container
+    this.gameContainer = document.createElement("div");
+    this.gameContainer.className = "game-container";
+    document.body.appendChild(this.gameContainer);
+    
+    // Header
     const header = document.createElement("div");
     header.className = "header";
     header.textContent = "Number Game";
-    gameContainer.appendChild(header);
+    this.gameContainer.appendChild(header);
     
+    // Numbers container
     this.numbersContainer = document.createElement("div");
     this.numbersContainer.className = "container";
+    this.gameContainer.appendChild(this.numbersContainer);
     
-    // Alert and Warning Texts
+    // Alert system
     this.alertGroup = document.createElement("div");
     this.alertGroup.className = "alert-warning-group";
     this.alertText = document.createElement("div");
@@ -188,13 +251,15 @@ class NumberTracker {
     this.warningText.className = "warning-text";
     this.warningText.textContent = "Warning: ";
     this.alertGroup.append(this.alertText, this.warningText);
+    this.gameContainer.appendChild(this.alertGroup);
     
-    // Input Group
+    // Input group
     const inputGroup = document.createElement("div");
     inputGroup.className = "input-group";
     
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
+    this.inputField.inputMode = "numeric";
     this.inputField.placeholder = "Enter a number";
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     
@@ -203,35 +268,17 @@ class NumberTracker {
     this.enterButton.addEventListener("click", () => this.processEntry());
     
     inputGroup.append(this.inputField, this.enterButton);
+    this.gameContainer.appendChild(inputGroup);
     
-    // Button Group
-    const buttonGroup = document.createElement("div");
-    buttonGroup.className = "button-group";
-    
+    // Undo button
     this.undoButton = document.createElement("button");
     this.undoButton.textContent = "Undo";
     this.undoButton.addEventListener("click", () => this.undoLastEntry());
-    
-    // Control Buttons
-    const controlGroup = document.createElement("div");
-    controlGroup.style.marginTop = "10px";
-    this.smallerButton = document.createElement("button");
-    this.smallerButton.textContent = "Smaller";
-    this.smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
-    
-    this.resetButton = document.createElement("button");
-    this.resetButton.textContent = "Reset";
-    this.resetButton.addEventListener("click", () => this.resetGame());
-    
-    controlGroup.append(this.smallerButton, this.resetButton);
-    
-    gameContainer.append(
-      this.numbersContainer,
-      this.alertGroup,
-      inputGroup,
-      this.undoButton,
-      controlGroup
-    );
+    this.gameContainer.appendChild(this.undoButton);
+  }
+
+  toggleGameContainerSize() {
+    this.gameContainer.classList.toggle("smaller");
   }
 
   processEntry() {
@@ -293,11 +340,12 @@ class NumberTracker {
     
     for (let i = 0; i < 36; i++) {
       const span = document.createElement("span");
-      span.textContent = numbersToDisplay[i] || "";
+      const num = numbersToDisplay[i];
+      span.textContent = num !== undefined ? num : "";
       
-      if (this.colorMap.red.has(numbersToDisplay[i])) span.style.color = "red";
-      else if (this.colorMap.black.has(numbersToDisplay[i])) span.style.color = "black";
-      else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
+      if (this.colorMap.red.has(num)) span.style.color = "red";
+      else if (this.colorMap.black.has(num)) span.style.color = "black";
+      else if (this.colorMap.green.has(num)) span.style.color = "green";
       
       this.numbersContainer.appendChild(span);
     }
