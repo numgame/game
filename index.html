@@ -7,7 +7,7 @@
 </head>
 <body>
     <script>
-        // Version: v1.1
+        // Version: v1.2
 // If updating, increment version number and retain this comment
 
 class NumberTracker {
@@ -18,7 +18,8 @@ class NumberTracker {
       black: new Set([2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]),
       green: new Set([0, "00"])
     };
-    this.numbers = JSON.parse(localStorage.getItem("numbers")) || Array.from({ length: 36 }, (_, i) => i + 1);
+    this.numbers = JSON.parse(localStorage.getItem("numbers")) || [];
+    this.enteredNumbers = [];
     this.undoStack = [];
     this.recognition = null;
     this.checkPassword();
@@ -47,12 +48,16 @@ class NumberTracker {
 
   createUI() {
     const versionDisplay = document.createElement("p");
-    versionDisplay.textContent = "Version: v1.1";
+    versionDisplay.textContent = "Version: v1.2";
     versionDisplay.style.fontWeight = "bold";
     
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
+    
+    this.enterButton = document.createElement("button");
+    this.enterButton.textContent = "Enter";
+    this.enterButton.addEventListener("click", () => this.processInput(this.inputField.value));
     
     this.undoButton = document.createElement("button");
     this.undoButton.textContent = "Undo";
@@ -75,7 +80,31 @@ class NumberTracker {
     this.errorMessage = document.createElement("p");
     this.errorMessage.style.color = "red";
     
-    document.body.append(versionDisplay, this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage);
+    this.enteredNumbersContainer = document.createElement("div");
+    this.enteredNumbersContainer.textContent = "Entered Numbers: ";
+    this.enteredNumbersContainer.style.marginTop = "20px";
+    
+    document.body.append(versionDisplay, this.inputField, this.enterButton, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage, this.enteredNumbersContainer);
+  }
+
+  handleKeydown(event) {
+    if (event.key === "Enter") {
+      this.processInput(this.inputField.value);
+    }
+  }
+
+  processInput(value) {
+    if (this.validNumbers.has(value)) {
+      this.enteredNumbers.push(value);
+      this.updateEnteredNumbers();
+      this.inputField.value = "";
+    } else {
+      this.errorMessage.textContent = "Invalid number. Please enter a valid roulette number.";
+    }
+  }
+
+  updateEnteredNumbers() {
+    this.enteredNumbersContainer.textContent = "Entered Numbers: " + this.enteredNumbers.join(", ");
   }
 
   render() {
