@@ -404,7 +404,7 @@ class NumberTracker {
 this.inputField = document.createElement("input");
 this.inputField.type = "text";
 this.inputField.placeholder = "Enter a number";
-this.inputField.inputMode = "tel"; // Use "tel" for numbers + symbols + Enter
+this.inputField.inputMode = "decimal"; // Use "decimal" for numbers + Enter
 this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     
     // Undo button to remove the last number
