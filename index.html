@@ -76,14 +76,19 @@
     this.createUI();
     const container = document.createElement("div");
     container.style.display = "flex";
+    container.style.flexWrap = "wrap";
     container.style.gap = "5px";
-    
+    container.style.justifyContent = "center";
+    container.style.padding = "10px";
+
     this.numbers.forEach((n) => {
       const span = document.createElement("span");
       span.textContent = `| ${n} `;
       span.style.padding = "5px";
       span.style.fontWeight = "bold";
       span.style.fontSize = "18px";
+      span.style.minWidth = "40px";
+      span.style.textAlign = "center";
       
       if (this.colorMap.red.has(n)) span.style.color = "red";
       else if (this.colorMap.black.has(n)) span.style.color = "black";
@@ -93,50 +98,6 @@
     });
     
     document.body.prepend(container);
-  }
-
-  initVoiceRecognition() {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      this.errorMessage.textContent = "Voice recognition is not supported in this browser.";
-      return;
-    }
-    
-    this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    this.recognition.lang = "en-US";
-    this.recognition.continuous = false;
-    this.recognition.interimResults = false;
-    
-    this.recognition.onstart = () => {
-      this.voiceStatus.textContent = "Listening...";
-      this.voiceButton.style.display = "none";
-      this.stopVoiceButton.style.display = "inline";
-    };
-    
-    this.recognition.onresult = (event) => {
-      let spokenText = event.results[0][0].transcript.trim();
-      this.inputField.value = spokenText;
-      this.processInput(spokenText);
-      this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
-    };
-    
-    this.recognition.onerror = () => {
-      this.errorMessage.textContent = "Could not recognize speech. Try again.";
-      this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
-    };
-    
-    this.recognition.onend = () => {
-      this.voiceButton.style.display = "inline";
-      this.stopVoiceButton.style.display = "none";
-    };
-    
-    this.recognition.start();
-  }
-
-  stopVoiceRecognition() {
-    if (this.recognition) {
-      this.recognition.stop();
-      this.voiceStatus.textContent = "Voice input stopped.";
-    }
   }
 }
 
