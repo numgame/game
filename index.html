@@ -7,7 +7,10 @@
 </head>
 <body>
     <script>
-        class NumberTracker {
+        // Version: v1.1
+// If updating, increment version number and retain this comment
+
+class NumberTracker {
   constructor() {
     this.validNumbers = new Set([0, "00", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]);
     this.colorMap = {
@@ -43,6 +46,10 @@
   }
 
   createUI() {
+    const versionDisplay = document.createElement("p");
+    versionDisplay.textContent = "Version: v1.1";
+    versionDisplay.style.fontWeight = "bold";
+    
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
@@ -68,7 +75,7 @@
     this.errorMessage = document.createElement("p");
     this.errorMessage.style.color = "red";
     
-    document.body.append(this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage);
+    document.body.append(versionDisplay, this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage);
   }
 
   render() {
@@ -80,6 +87,8 @@
     container.style.gap = "5px";
     container.style.justifyContent = "center";
     container.style.padding = "10px";
+    container.style.maxWidth = "100vw";
+    container.style.overflowX = "hidden";
 
     this.numbers.forEach((n) => {
       const span = document.createElement("span");
@@ -89,6 +98,7 @@
       span.style.fontSize = "18px";
       span.style.minWidth = "40px";
       span.style.textAlign = "center";
+      span.style.flex = "1 1 auto";
       
       if (this.colorMap.red.has(n)) span.style.color = "red";
       else if (this.colorMap.black.has(n)) span.style.color = "black";
@@ -102,7 +112,6 @@
 }
 
 new NumberTracker();
-
     </script>
 </body>
 </html>
