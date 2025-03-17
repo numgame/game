@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Number Tracker Game</title>
     <!-- Import Montserrat Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
@@ -387,20 +386,32 @@ class NumberTracker {
 
   // Create the game UI (input field, buttons, etc.)
   createUI() {
-    // Input field and buttons container
-    const inputContainer = document.createElement("div");
-    inputContainer.style.display = "flex";
-    inputContainer.style.alignItems = "center";
-    inputContainer.style.gap = "10px";
-    inputContainer.style.marginBottom = "10px";
-
+    const gameContainer = document.createElement("div");
+    gameContainer.className = "game-container";
+    document.body.appendChild(gameContainer);
+    
+    // Add header
+    const header = document.createElement("div");
+    header.className = "header";
+    header.textContent = "Number Game";
+    gameContainer.appendChild(header);
+    
+    // Create a container for the numbers at the top
+    this.numbersContainer = document.createElement("div");
+    this.numbersContainer.className = "container";
+    
     // Input field for entering numbers
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
     this.inputField.placeholder = "Enter a number";
     this.inputField.inputMode = "tel"; // Use "tel" for numbers + symbols + Enter
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
-
+    
+    // Undo button to remove the last number
+    this.undoButton = document.createElement("button");
+    this.undoButton.textContent = "Undo";
+    this.undoButton.addEventListener("click", () => this.undoLastEntry());
+    
     // Enter button to submit the number
     this.enterButton = document.createElement("button");
     this.enterButton.textContent = "Enter";
@@ -413,30 +424,65 @@ class NumberTracker {
         this.inputField.focus();
       }
     });
-
-    // Add input field and enter button to the container
-    inputContainer.append(this.inputField, this.enterButton);
-
-    // Undo button to remove the last number
-    this.undoButton = document.createElement("button");
-    this.undoButton.textContent = "Undo";
-    this.undoButton.addEventListener("click", () => this.undoLastEntry());
-    this.undoButton.style.margin = "0 auto"; // Center the undo button
-
+    
+    // Reset button to clear all numbers
+    this.resetButton = document.createElement("button");
+    this.resetButton.textContent = "Reset";
+    this.resetButton.addEventListener("click", () => this.resetGame());
+    
+    // Voice input buttons
+    this.voiceButton = document.createElement("button");
+    this.voiceButton.textContent = "Start Voice Input";
+    this.voiceButton.classList.add("voice-button");
+    this.voiceButton.addEventListener("click", () => this.initVoiceRecognition());
+    
+    this.stopVoiceButton = document.createElement("button");
+    this.stopVoiceButton.textContent = "Stop Voice Input";
+    this.stopVoiceButton.classList.add("stop-voice-button");
+    this.stopVoiceButton.style.display = "none";
+    this.stopVoiceButton.addEventListener("click", () => this.stopVoiceRecognition());
+    
+    // Status and messages
+    this.voiceStatus = document.createElement("p");
+    this.voiceStatus.className = "voice-status";
+    this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
+    
+    // Alert container
+    this.alertContainer = document.createElement("div");
+    this.alertContainer.className = "alert-container";
+    this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
+    
+    // Alert buttons
+    const alertButtons = document.createElement("div");
+    alertButtons.className = "alert-buttons";
+    
+    // Minimize button
+    this.minimizeButton = document.createElement("button");
+    this.minimizeButton.innerHTML = "&#9660;"; // Down arrow symbol
+    this.minimizeButton.addEventListener("click", () => this.toggleMinimize());
+    
+    // Resize button
+    this.resizeButton = document.createElement("button");
+    this.resizeButton.innerHTML = "&#9723;"; // Square symbol
+    this.resizeButton.addEventListener("click", () => this.toggleResize());
+    
+    alertButtons.append(this.minimizeButton, this.resizeButton);
+    this.alertContainer.appendChild(alertButtons);
+    
+    this.warningMessage = document.createElement("div");
+    this.warningMessage.className = "warning small-warning"; // Add small-warning class
+    
+    this.errorMessage = document.createElement("p");
+    this.errorMessage.className = "error-message";
+    
     // Append everything to the game container
-    gameContainer.append(this.numbersContainer, this.warningMessage, inputContainer, this.undoButton, this.alertContainer, this.errorMessage);er, this.errorMessage);
+    gameContainer.append(this.numbersContainer, this.warningMessage, this.inputField, this.undoButton, this.enterButton, this.resetButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.errorMessage);
 
     // Add "Smaller" button for the game container
     const smallerButton = document.createElement("button");
     smallerButton.textContent = "Smaller";
     smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
     document.body.insertBefore(smallerButton, gameContainer);
-
-    // Add "Reset" button next to "Smaller" button
-    const resetButton = document.createElement("button");
-    resetButton.textContent = "Reset";
-    resetButton.addEventListener("click", () => this.resetGame());
-    document.body.insertBefore(resetButton, gameContainer);
   }
 
   // Toggle game container size
@@ -522,6 +568,55 @@ class NumberTracker {
     this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
     this.warningMessage.textContent = "";
     this.errorMessage.textContent = "";
+  }
+
+  // Convert spoken words to numbers
+  convertSpokenTextToNumber(spokenText) {
+    const numberWords = {
+      "zero": 0,
+      "single zero": 0,
+      "double zero": "00",
+      "one": 1,
+      "two": 2,
+      "three": 3,
+      "four": 4,
+      "five": 5,
+      "six": 6,
+      "seven": 7,
+      "eight": 8,
+      "nine": 9,
+      "ten": 10,
+      "eleven": 11,
+      "twelve": 12,
+      "thirteen": 13,
+      "fourteen": 14,
+      "fifteen": 15,
+      "sixteen": 16,
+      "seventeen": 17,
+      "eighteen": 18,
+      "nineteen": 19,
+      "twenty": 20,
+      "thirty": 30,
+      "thirty-six": 36
+    };
+
+    // Convert spoken text to lowercase for matching
+    spokenText = spokenText.toLowerCase();
+
+    // Check if the spoken text matches a number word
+    if (numberWords.hasOwnProperty(spokenText)) {
+      return numberWords[spokenText];
+    }
+
+    // Handle cases like "twenty one" (e.g., "twenty-one")
+    if (spokenText.includes(" ")) {
+      const parts = spokenText.split(" ");
+      if (parts.length === 2 && numberWords.hasOwnProperty(parts[0]) && numberWords.hasOwnProperty(parts[1])) {
+        return numberWords[parts[0]] + numberWords[parts[1]];
+      }
+    }
+
+    return null; // Return null if no match is found
   }
 
   // Check for triplets and display alerts
@@ -616,6 +711,57 @@ class NumberTracker {
       else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
       
       this.numbersContainer.appendChild(span);
+    }
+  }
+
+  // Initialize voice recognition
+  initVoiceRecognition() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      this.errorMessage.textContent = "Voice recognition is not supported in this browser.";
+      return;
+    }
+    
+    this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    this.recognition.lang = "en-US";
+    this.recognition.continuous = true; // Keep listening until stopped
+    this.recognition.interimResults = false;
+    
+    this.recognition.onstart = () => {
+      this.voiceStatus.textContent = "Listening...";
+      this.voiceButton.style.display = "none";
+      this.stopVoiceButton.style.display = "inline";
+    };
+    
+    this.recognition.onresult = (event) => {
+      let spokenText = event.results[event.results.length - 1][0].transcript.trim();
+      const number = this.convertSpokenTextToNumber(spokenText);
+      
+      if (number !== null) {
+        this.inputField.value = number;
+        this.processInput(number.toString());
+      } else {
+        this.errorMessage.textContent = `Could not recognize number: ${spokenText}. Try again.`;
+      }
+    };
+    
+    this.recognition.onerror = () => {
+      this.errorMessage.textContent = "Could not recognize speech. Try again.";
+      this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
+    };
+    
+    this.recognition.onend = () => {
+      this.voiceButton.style.display = "inline";
+      this.stopVoiceButton.style.display = "none";
+    };
+    
+    this.recognition.start();
+  }
+
+  // Stop voice recognition
+  stopVoiceRecognition() {
+    if (this.recognition) {
+      this.recognition.stop();
+      this.voiceStatus.textContent = "Voice input stopped.";
     }
   }
 
