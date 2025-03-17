@@ -401,16 +401,29 @@ class NumberTracker {
     this.numbersContainer.className = "container";
     
     // Input field for entering numbers
-this.inputField = document.createElement("input");
-this.inputField.type = "text";
-this.inputField.placeholder = "Enter a number";
-this.inputField.inputMode = "decimal"; // Use "decimal" for numbers + Enter
-this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
+    this.inputField = document.createElement("input");
+    this.inputField.type = "text";
+    this.inputField.placeholder = "Enter a number";
+    this.inputField.inputMode = "tel"; // Use "tel" for numbers + symbols + Enter
+    this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     
     // Undo button to remove the last number
     this.undoButton = document.createElement("button");
     this.undoButton.textContent = "Undo";
     this.undoButton.addEventListener("click", () => this.undoLastEntry());
+    
+    // Enter button to submit the number
+    this.enterButton = document.createElement("button");
+    this.enterButton.textContent = "Enter";
+    this.enterButton.addEventListener("click", () => {
+      const input = this.inputField.value.trim();
+      if (input) {
+        this.processInput(input);
+        this.inputField.value = "";
+        // Keep the keyboard open on mobile devices
+        this.inputField.focus();
+      }
+    });
     
     // Reset button to clear all numbers
     this.resetButton = document.createElement("button");
@@ -463,7 +476,7 @@ this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     this.errorMessage.className = "error-message";
     
     // Append everything to the game container
-    gameContainer.append(this.numbersContainer, this.warningMessage, this.inputField, this.undoButton, this.resetButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.errorMessage);
+    gameContainer.append(this.numbersContainer, this.warningMessage, this.inputField, this.undoButton, this.enterButton, this.resetButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.errorMessage);
 
     // Add "Smaller" button for the game container
     const smallerButton = document.createElement("button");
