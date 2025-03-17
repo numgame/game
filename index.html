@@ -7,7 +7,7 @@
 </head>
 <body>
     <script>
-        // Version: v1.1
+// Version: v1.0
 // If updating, increment version number and retain this comment
 
 class NumberTracker {
@@ -46,10 +46,6 @@ class NumberTracker {
   }
 
   createUI() {
-    const versionDisplay = document.createElement("p");
-    versionDisplay.textContent = "Version: v1.1";
-    versionDisplay.style.fontWeight = "bold";
-    
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
@@ -75,7 +71,7 @@ class NumberTracker {
     this.errorMessage = document.createElement("p");
     this.errorMessage.style.color = "red";
     
-    document.body.append(versionDisplay, this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage);
+    document.body.append(this.inputField, this.undoButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.message, this.warning, this.errorMessage);
   }
 
   render() {
@@ -112,6 +108,7 @@ class NumberTracker {
 }
 
 new NumberTracker();
+
 
     </script>
 </body>
