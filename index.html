@@ -6,322 +6,7 @@
     <title>Number Tracker Game</title>
     <!-- Import Montserrat Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        /* General Styles */
-        body {
-            font-family: 'Montserrat', sans-serif; /* Montserrat Font */
-            margin: 0;
-            padding: 0;
-            background-color: #212327; /* New Background */
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .version {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 14px;
-            color: #9C7DFF; /* Soft Lavender */
-        }
-
-        /* Header/Title */
-        .header {
-            font-size: 24px;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 20px;
-        }
-
-        /* Container for the game */
-        .game-container {
-            background-color: #292a2d; /* New Container Background */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            border: 2px solid #4d6bfe; /* Button color outline */
-            transition: transform 0.3s ease, width 0.3s ease, padding 0.3s ease;
-        }
-
-        .game-container.small {
-            width: 80%; /* Smaller width */
-            padding: 15px; /* Smaller padding */
-        }
-
-        .game-container.smaller {
-            width: 70%; /* Smallest width */
-            padding: 10px; /* Smallest padding */
-        }
-
-        .game-container.small .header {
-            font-size: 20px; /* Smaller header font size */
-        }
-
-        .game-container.smaller .header {
-            font-size: 18px; /* Smallest header font size */
-        }
-
-        .game-container.small input[type="text"],
-        .game-container.small input[type="password"] {
-            font-size: 14px; /* Smaller input font size */
-        }
-
-        .game-container.smaller input[type="text"],
-        .game-container.smaller input[type="password"] {
-            font-size: 12px; /* Smallest input font size */
-        }
-
-        .game-container.small button {
-            font-size: 14px; /* Smaller button font size */
-            padding: 8px 16px; /* Smaller button padding */
-        }
-
-        .game-container.smaller button {
-            font-size: 12px; /* Smallest button font size */
-            padding: 6px 12px; /* Smallest button padding */
-        }
-
-        .game-container.small .container span {
-            font-size: 14px; /* Smaller number font size */
-            padding: 6px; /* Smaller number padding */
-            min-width: 30px; /* Smaller min-width */
-        }
-
-        .game-container.smaller .container span {
-            font-size: 12px; /* Smallest number font size */
-            padding: 4px; /* Smallest number padding */
-            min-width: 25px; /* Smallest min-width */
-        }
-
-        /* Password container */
-        .password-container {
-            background-color: #292a2d; /* Same as game container */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            border: 2px solid #4d6bfe; /* Button color outline */
-        }
-
-        /* Number display container */
-        .container {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr); /* 6 columns */
-            grid-template-rows: repeat(6, 1fr); /* 6 rows */
-            gap: 5px;
-            justify-content: center;
-            margin-bottom: 20px;
-            background-color: #f4f4f4; /* New Number Container Background */
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .container span {
-            padding: 10px;
-            font-weight: bold;
-            font-size: 18px;
-            background-color: #ffffff;
-            border-radius: 5px;
-            min-width: 40px;
-            text-align: center;
-            color: #000000; /* Black text for numbers */
-        }
-
-        /* Input field */
-        input[type="text"],
-        input[type="password"] {
-            width: 80%;
-            padding: 10px;
-            font-size: 16px;
-            border: 2px solid #404045; /* New Text Box Background */
-            border-radius: 5px;
-            margin-bottom: 10px;
-            outline: none;
-            transition: border-color 0.3s ease;
-            background-color: #404045; /* New Text Box Background */
-            color: #ffffff;
-            font-family: 'Montserrat', sans-serif; /* Montserrat Font */
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: #4d6bfe; /* Button Background */
-        }
-
-        /* Buttons */
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4d6bfe; /* Button Background */
-            color: #ffffff; /* Button Text Color */
-            cursor: pointer;
-            margin: 5px;
-            transition: background-color 0.3s ease;
-            font-family: 'Montserrat', sans-serif; /* Montserrat Font */
-        }
-
-        button:hover {
-            background-color: #4f6eca; /* Hover Button Background */
-        }
-
-        button:active {
-            background-color: #3a4fa8; /* Active Button Background */
-        }
-
-        /* Voice input buttons */
-        .voice-button {
-            background-color: #28a745;
-        }
-
-        .voice-button:hover {
-            background-color: #218838;
-        }
-
-        .stop-voice-button {
-            background-color: #dc3545;
-        }
-
-        .stop-voice-button:hover {
-            background-color: #c82333;
-        }
-
-        /* Status and messages */
-        .voice-status {
-            font-size: 14px;
-            color: #9C7DFF; /* Soft Lavender */
-            margin-top: 10px;
-        }
-
-        /* Alert container */
-        .alert-container {
-            margin-top: 20px;
-            background-color: #292a2d; /* Same as game container */
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #4d6bfe; /* Button color outline */
-            width: 90%;
-            max-width: 500px; /* Smaller than game container */
-            text-align: center; /* Center text */
-            margin-left: auto;
-            margin-right: auto; /* Center the container */
-            position: relative; /* For positioning buttons */
-            transition: transform 0.3s ease, width 0.3s ease, padding 0.3s ease;
-        }
-
-        .alert-container.small {
-            width: 70%; /* Smaller width */
-            padding: 10px; /* Smaller padding */
-        }
-
-        .alert-container.minimized .alert {
-            display: none; /* Hide alerts when minimized */
-        }
-
-        .alert-container.minimized h3 {
-            margin-bottom: 0; /* Reduce margin when minimized */
-        }
-
-        .alert-container h3 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #ffffff;
-            transition: font-size 0.3s ease;
-        }
-
-        .alert-container.small h3 {
-            font-size: 16px; /* Smaller font size */
-        }
-
-        .alert {
-            font-size: 16px;
-            color: #ffffff;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.5s ease, transform 0.5s ease, font-size 0.3s ease, padding 0.3s ease;
-        }
-
-        .alert.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .alert-container.small .alert {
-            font-size: 14px; /* Smaller font size */
-            padding: 8px; /* Smaller padding */
-        }
-
-        .alert-buttons {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .alert-buttons button {
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px;
-            transition: color 0.3s ease;
-        }
-
-        .alert-buttons button:hover {
-            color: #4d6bfe; /* Button hover color */
-        }
-
-        .warning {
-            font-size: 16px;
-            color: #ffc107;
-            margin-top: 10px;
-        }
-
-        .error-message {
-            font-size: 14px;
-            color: #dc3545;
-            margin-top: 10px;
-        }
-
-        /* Small warning text */
-        .small-warning {
-            font-size: 14px; /* Smaller font size */
-            margin: 10px 0; /* Add some margin */
-            color: #ffc107; /* Warning color */
-        }
-
-        /* Responsive design */
-        @media (max-width: 600px) {
-            .container span {
-                font-size: 16px;
-                padding: 8px;
-                min-width: 35px;
-            }
-
-            input[type="text"],
-            input[type="password"] {
-                width: 90%;
-            }
-
-            button {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="version">V1.7</div>
@@ -389,30 +74,50 @@ class NumberTracker {
     const gameContainer = document.createElement("div");
     gameContainer.className = "game-container";
     document.body.appendChild(gameContainer);
-    
+
+    // Create button container for Reset and Smaller
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.gap = "5px";
+    buttonContainer.style.margin = "5px";
+
+    // Reset button
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "Reset";
+    resetButton.addEventListener("click", () => this.resetGame());
+
+    // Smaller button
+    const smallerButton = document.createElement("button");
+    smallerButton.textContent = "Smaller";
+    smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
+
+    // Add buttons to container
+    buttonContainer.append(resetButton, smallerButton);
+    document.body.insertBefore(buttonContainer, gameContainer);
+
     // Add header
     const header = document.createElement("div");
     header.className = "header";
     header.textContent = "Number Game";
     gameContainer.appendChild(header);
     
-    // Create a container for the numbers at the top
+    // Create numbers container
     this.numbersContainer = document.createElement("div");
     this.numbersContainer.className = "container";
     
-    // Input field for entering numbers
+    // Input field
     this.inputField = document.createElement("input");
     this.inputField.type = "text";
     this.inputField.placeholder = "Enter a number";
-    this.inputField.inputMode = "tel"; // Use "tel" for numbers + symbols + Enter
+    this.inputField.inputMode = "tel";
     this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
     
-    // Undo button to remove the last number
+    // Undo button
     this.undoButton = document.createElement("button");
     this.undoButton.textContent = "Undo";
     this.undoButton.addEventListener("click", () => this.undoLastEntry());
     
-    // Enter button to submit the number
+    // Enter button
     this.enterButton = document.createElement("button");
     this.enterButton.textContent = "Enter";
     this.enterButton.addEventListener("click", () => {
@@ -420,32 +125,9 @@ class NumberTracker {
       if (input) {
         this.processInput(input);
         this.inputField.value = "";
-        // Keep the keyboard open on mobile devices
         this.inputField.focus();
       }
     });
-    
-    // Reset button to clear all numbers
-    this.resetButton = document.createElement("button");
-    this.resetButton.textContent = "Reset";
-    this.resetButton.addEventListener("click", () => this.resetGame());
-    
-    // Voice input buttons
-    this.voiceButton = document.createElement("button");
-    this.voiceButton.textContent = "Start Voice Input";
-    this.voiceButton.classList.add("voice-button");
-    this.voiceButton.addEventListener("click", () => this.initVoiceRecognition());
-    
-    this.stopVoiceButton = document.createElement("button");
-    this.stopVoiceButton.textContent = "Stop Voice Input";
-    this.stopVoiceButton.classList.add("stop-voice-button");
-    this.stopVoiceButton.style.display = "none";
-    this.stopVoiceButton.addEventListener("click", () => this.stopVoiceRecognition());
-    
-    // Status and messages
-    this.voiceStatus = document.createElement("p");
-    this.voiceStatus.className = "voice-status";
-    this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
     
     // Alert container
     this.alertContainer = document.createElement("div");
@@ -456,33 +138,33 @@ class NumberTracker {
     const alertButtons = document.createElement("div");
     alertButtons.className = "alert-buttons";
     
-    // Minimize button
     this.minimizeButton = document.createElement("button");
-    this.minimizeButton.innerHTML = "&#9660;"; // Down arrow symbol
+    this.minimizeButton.innerHTML = "&#9660;";
     this.minimizeButton.addEventListener("click", () => this.toggleMinimize());
     
-    // Resize button
     this.resizeButton = document.createElement("button");
-    this.resizeButton.innerHTML = "&#9723;"; // Square symbol
+    this.resizeButton.innerHTML = "&#9723;";
     this.resizeButton.addEventListener("click", () => this.toggleResize());
     
     alertButtons.append(this.minimizeButton, this.resizeButton);
     this.alertContainer.appendChild(alertButtons);
     
     this.warningMessage = document.createElement("div");
-    this.warningMessage.className = "warning small-warning"; // Add small-warning class
+    this.warningMessage.className = "warning small-warning";
     
     this.errorMessage = document.createElement("p");
     this.errorMessage.className = "error-message";
     
-    // Append everything to the game container
-    gameContainer.append(this.numbersContainer, this.warningMessage, this.inputField, this.undoButton, this.enterButton, this.resetButton, this.voiceButton, this.stopVoiceButton, this.voiceStatus, this.alertContainer, this.errorMessage);
-
-    // Add "Smaller" button for the game container
-    const smallerButton = document.createElement("button");
-    smallerButton.textContent = "Smaller";
-    smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
-    document.body.insertBefore(smallerButton, gameContainer);
+    // Append elements
+    gameContainer.append(
+      this.numbersContainer,
+      this.warningMessage,
+      this.inputField,
+      this.undoButton,
+      this.enterButton,
+      this.alertContainer,
+      this.errorMessage
+    );
   }
 
   // Toggle game container size
@@ -627,8 +309,8 @@ class NumberTracker {
     // Count occurrences of each number
     for (const num of this.numbers) {
       countMap[num] = (countMap[num] || 0) + 1;
-      if (countMap[num] === 3) {
-        newAlerts.add(num); // Add to active alerts
+      if (countMap[num] >= 3) {  // Changed to check for >= 3 instead of === 3
+        newAlerts.add(num);
       }
     }
     
@@ -656,28 +338,29 @@ class NumberTracker {
     alertButtons.append(this.minimizeButton, this.resizeButton);
     this.alertContainer.appendChild(alertButtons);
     
-    // Display active alerts
-    this.alerts.forEach((num, index) => {
+    // Display active alerts with dynamic counts
+    this.alerts.forEach((num) => {
       const alert = document.createElement("div");
       alert.className = "alert";
       
       // Set background color based on number color
       if (this.colorMap.red.has(num)) {
-        alert.style.backgroundColor = "#cc2020"; // Red
+        alert.style.backgroundColor = "#cc2020";
       } else if (this.colorMap.green.has(num)) {
-        alert.style.backgroundColor = "#23913c"; // Green
+        alert.style.backgroundColor = "#23913c";
       } else if (this.colorMap.black.has(num)) {
-        alert.style.backgroundColor = "#1e1f22"; // Black
+        alert.style.backgroundColor = "#1e1f22";
       }
       
-      alert.textContent = `Number ${num} appeared three times!`;
+      // Update text to show current count from countMap
+      alert.textContent = `Number ${num} appears ${countMap[num]} times!`;
       this.alertContainer.appendChild(alert);
       
-      // Only animate if it's a new alert
+      // Animation logic remains the same
       if (!previousAlerts.has(num)) {
-        setTimeout(() => alert.classList.add("show"), 10); // Trigger slide-up animation
+        setTimeout(() => alert.classList.add("show"), 10);
       } else {
-        alert.classList.add("show"); // Show without animation
+        alert.classList.add("show");
       }
     });
   }
@@ -711,57 +394,6 @@ class NumberTracker {
       else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
       
       this.numbersContainer.appendChild(span);
-    }
-  }
-
-  // Initialize voice recognition
-  initVoiceRecognition() {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      this.errorMessage.textContent = "Voice recognition is not supported in this browser.";
-      return;
-    }
-    
-    this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    this.recognition.lang = "en-US";
-    this.recognition.continuous = true; // Keep listening until stopped
-    this.recognition.interimResults = false;
-    
-    this.recognition.onstart = () => {
-      this.voiceStatus.textContent = "Listening...";
-      this.voiceButton.style.display = "none";
-      this.stopVoiceButton.style.display = "inline";
-    };
-    
-    this.recognition.onresult = (event) => {
-      let spokenText = event.results[event.results.length - 1][0].transcript.trim();
-      const number = this.convertSpokenTextToNumber(spokenText);
-      
-      if (number !== null) {
-        this.inputField.value = number;
-        this.processInput(number.toString());
-      } else {
-        this.errorMessage.textContent = `Could not recognize number: ${spokenText}. Try again.`;
-      }
-    };
-    
-    this.recognition.onerror = () => {
-      this.errorMessage.textContent = "Could not recognize speech. Try again.";
-      this.voiceStatus.textContent = "Tap 'Start Voice Input' to begin...";
-    };
-    
-    this.recognition.onend = () => {
-      this.voiceButton.style.display = "inline";
-      this.stopVoiceButton.style.display = "none";
-    };
-    
-    this.recognition.start();
-  }
-
-  // Stop voice recognition
-  stopVoiceRecognition() {
-    if (this.recognition) {
-      this.recognition.stop();
-      this.voiceStatus.textContent = "Voice input stopped.";
     }
   }
 
