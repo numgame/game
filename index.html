@@ -76,7 +76,7 @@ class NumberTracker {
     smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
 
     const gameButton = document.createElement("button");
-    gameButton.textContent = "Switch Game";
+    gameButton.textContent = "Switch to 6x7";
     gameButton.addEventListener("click", () => this.switchGame());
 
 
@@ -85,7 +85,7 @@ class NumberTracker {
 
     const header = document.createElement("div");
     header.className = "header";
-    header.textContent = "Number Game";
+    header.textContent = "Number Game 6x6";
     gameContainer.appendChild(header);
     
     this.numbersContainer = document.createElement("div");
