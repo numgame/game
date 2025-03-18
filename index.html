@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Tracker Game</title>
+    <title>Number Tracker Game 6x6</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="version">V1.9</div>
     <div class="password-container">
-        <div class="header">Number Game</div>
+        <div class="header">Number Game 6x6</div>
         <script>
 // Version: v1.9
 // If updating, increment version number and retain this comment
@@ -75,7 +75,12 @@ class NumberTracker {
     smallerButton.textContent = "Smaller";
     smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
 
-    buttonContainer.append(resetButton, smallerButton);
+    const gameButton = document.createElement("button");
+    gameButton.textContent = "Switch Game";
+    gameButton.addEventListener("click", () => this.switchGame());
+
+
+    buttonContainer.append(resetButton, smallerButton, gameButton);
     document.body.insertBefore(buttonContainer, gameContainer);
 
     const header = document.createElement("div");
@@ -203,6 +208,10 @@ class NumberTracker {
     this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
     this.warningMessage.textContent = "";
     this.errorMessage.textContent = "";
+  }
+
+  switchGame() {
+    window.location.href = "index2.html";
   }
 
   checkForTriplets() {
