@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Tracker Game 6x7 (2s)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="version">V1.9</div>
+    <div class="password-container">
+        <div class="header">Number Game 6x7 (2s)</div>
+        <script>
+// Version: v1.9
+// If updating, increment version number and retain this comment
+
+class NumberTracker {
+  constructor() {
+    this.validNumbers = new Set([0, "00", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]);
+    this.colorMap = {
+      red: new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]),
+      black: new Set([2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]),
+      green: new Set([0, "00"])
+    };
+    this.numbers = JSON.parse(localStorage.getItem("numbers")) || [];
+    this.undoStack = [];
+    this.recognition = null;
+    this.alerts = new Map();
+    this.checkPassword();
+  }
+
+  checkPassword() {
+    const passwordContainer = document.querySelector(".password-container");
+    const passwordInput = document.createElement("input");
+    passwordInput.type = "password";
+    passwordInput.placeholder = "Enter password";
+    
+    const submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    submitButton.addEventListener("click", () => this.submitPassword(passwordInput));
+    
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") this.submitPassword(passwordInput);
+    });
+    
+    passwordContainer.append(passwordInput, submitButton);
+  }
+
+  submitPassword(passwordInput) {
+    if (passwordInput.value === "paul") {
+      document.querySelector(".password-container").style.display = "none";
+      this.createUI();
+      this.render();
+    } else {
+      alert("Incorrect password. Try again.");
+    }
+  }
+
+  createUI() {
+    const gameContainer = document.createElement("div");
+    gameContainer.className = "game-container";
+    document.body.appendChild(gameContainer);
+
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.gap = "5px";
+    buttonContainer.style.margin = "5px";
+
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "Reset";
+    resetButton.addEventListener("click", () => this.resetGame());
+
+    const smallerButton = document.createElement("button");
+    smallerButton.textContent = "Smaller";
+    smallerButton.addEventListener("click", () => this.toggleGameContainerSize());
+
+    const gameButton = document.createElement("button");
+    gameButton.textContent = "Switch to 6x6";
+    gameButton.addEventListener("click", () => this.switchGame());
+
+    const gameButton2 = document.createElement("button");
+    gameButton2.textContent = "Switch to 6x7";
+    gameButton2.addEventListener("click", () => this.switchGame2());
+
+    const gameButton3 = document.createElement("button");
+    gameButton3.textContent = "Switch to 2s (6x6)";
+    gameButton3.addEventListener("click", () => this.switchGame3());
+
+    buttonContainer.append(resetButton, smallerButton, gameButton, gameButton2, gameButton3);
+    document.body.insertBefore(buttonContainer, gameContainer);
+
+    const header = document.createElement("div");
+    header.className = "header";
+    header.textContent = "Number Game 6x7 (2s)";
+    gameContainer.appendChild(header);
+    
+    this.numbersContainer = document.createElement("div");
+    this.numbersContainer.className = "container";
+    
+    this.inputField = document.createElement("input");
+    this.inputField.type = "text";
+    this.inputField.placeholder = "Enter a number";
+    this.inputField.inputMode = "tel";
+    this.inputField.addEventListener("keydown", (e) => this.handleKeydown(e));
+    
+    this.undoButton = document.createElement("button");
+    this.undoButton.textContent = "Undo";
+    this.undoButton.addEventListener("click", () => this.undoLastEntry());
+    
+    this.enterButton = document.createElement("button");
+    this.enterButton.textContent = "Enter";
+    this.enterButton.addEventListener("click", () => {
+      const input = this.inputField.value.trim();
+      if (input) {
+        this.processInput(input);
+        this.inputField.value = "";
+        this.inputField.focus();
+      }
+    });
+    
+    this.alertContainer = document.createElement("div");
+    this.alertContainer.className = "alert-container";
+    this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
+    
+    const alertButtons = document.createElement("div");
+    alertButtons.className = "alert-buttons";
+    
+    this.minimizeButton = document.createElement("button");
+    this.minimizeButton.innerHTML = "&#9660;";
+    this.minimizeButton.addEventListener("click", () => this.toggleMinimize());
+    
+    this.resizeButton = document.createElement("button");
+    this.resizeButton.innerHTML = "&#9723;";
+    this.resizeButton.addEventListener("click", () => this.toggleResize());
+    
+    alertButtons.append(this.minimizeButton, this.resizeButton);
+    this.alertContainer.appendChild(alertButtons);
+    
+    this.warningMessage = document.createElement("div");
+    this.warningMessage.className = "warning small-warning";
+    
+    this.errorMessage = document.createElement("p");
+    this.errorMessage.className = "error-message";
+    
+    gameContainer.append(
+      this.numbersContainer,
+      this.warningMessage,
+      this.inputField,
+      this.undoButton,
+      this.enterButton,
+      this.alertContainer,
+      this.errorMessage
+    );
+  }
+
+  toggleGameContainerSize() {
+    const gameContainer = document.querySelector(".game-container");
+    if (!gameContainer.classList.contains("small") && !gameContainer.classList.contains("smaller")) {
+      gameContainer.classList.add("small");
+    } else if (gameContainer.classList.contains("small")) {
+      gameContainer.classList.remove("small");
+      gameContainer.classList.add("smaller");
+    } else if (gameContainer.classList.contains("smaller")) {
+      gameContainer.classList.remove("smaller");
+    }
+  }
+
+  toggleMinimize() {
+    this.alertContainer.classList.toggle("minimized");
+    this.minimizeButton.innerHTML = this.alertContainer.classList.contains("minimized") ? "&#9658;" : "&#9660;";
+  }
+
+  toggleResize() {
+    this.alertContainer.classList.toggle("small");
+  }
+
+  handleKeydown(e) {
+    if (e.key === "Enter") {
+      const input = this.inputField.value.trim();
+      if (input) {
+        this.processInput(input);
+        this.inputField.value = "";
+        this.inputField.focus();
+      }
+    }
+  }
+
+  processInput(input) {
+    const number = input === "00" ? "00" : parseInt(input, 10);
+    
+    if ((isNaN(number) && input !== "00") || !this.validNumbers.has(number)) {
+      this.errorMessage.textContent = `Invalid number: ${input}. Please enter a valid number.`;
+      return;
+    }
+
+    this.errorMessage.textContent = "";
+
+    if (this.numbers.length >= 42) {
+      this.numbers.shift();
+    }
+
+    this.numbers.push(number);
+    localStorage.setItem("numbers", JSON.stringify(this.numbers));
+    this.render();
+    this.checkForTriplets();
+    this.checkForWarnings();
+  }
+
+  resetGame() {
+    this.numbers = [];
+    localStorage.setItem("numbers", JSON.stringify(this.numbers));
+    this.render();
+    this.alerts.clear();
+    this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
+    this.warningMessage.textContent = "";
+    this.errorMessage.textContent = "";
+  }
+
+  switchGame() {
+    window.location.href = "index.html";
+  }
+
+  switchGame2() {
+    window.location.href = "6x7.html";
+  }
+
+  switchGame3() {
+    window.location.href = "26x6.html";
+  }
+
+
+  checkForTriplets() {
+    const countMap = {};
+    // Calculate current counts
+    for (const num of this.numbers) {
+      countMap[num] = (countMap[num] || 0) + 1;
+    }
+
+    // Update existing alerts or create new ones
+    const currentAlerts = new Set();
+    for (const [num, count] of Object.entries(countMap)) {
+      const numericNum = num === "00" ? "00" : parseInt(num, 10);
+      if (count >= 2) {
+        currentAlerts.add(numericNum);
+        // Update count if already exists
+        if (this.alerts.has(numericNum)) {
+          this.alerts.get(numericNum).count = count;
+        }
+      }
+    }
+
+    // Remove old alerts that no longer qualify
+    for (const [num] of this.alerts) {
+      if (!currentAlerts.has(num)) {
+        this.alerts.delete(num);
+      }
+    }
+
+    // Add new alerts
+    for (const num of currentAlerts) {
+      if (!this.alerts.has(num)) {
+        this.alerts.set(num, {
+          count: countMap[num],
+          element: null
+        });
+      }
+    }
+
+    // Sort alerts by most frequent first
+    const sortedAlerts = Array.from(this.alerts.entries())
+      .sort((a, b) => b[1].count - a[1].count);
+
+    // Update alert container
+    this.alertContainer.innerHTML = "<h3>Active Alerts</h3>";
+    const alertButtons = document.createElement("div");
+    alertButtons.className = "alert-buttons";
+    alertButtons.append(this.minimizeButton.cloneNode(true), this.resizeButton.cloneNode(true));
+    this.alertContainer.appendChild(alertButtons);
+
+    // Create/reuse alert elements
+    sortedAlerts.forEach(([num, alertData]) => {
+      let alertElement = alertData.element;
+      if (!alertElement) {
+        alertElement = document.createElement("div");
+        alertElement.className = "alert";
+        if (this.colorMap.red.has(num)) alertElement.style.backgroundColor = "#cc2020";
+        else if (this.colorMap.green.has(num)) alertElement.style.backgroundColor = "#23913c";
+        else if (this.colorMap.black.has(num)) alertElement.style.backgroundColor = "#1e1f22";
+        alertData.element = alertElement;
+      }
+      
+      alertElement.textContent = `Number ${num} appears __________ ${alertData.count} times!`;
+      
+      if (!alertElement.classList.contains("show")) {
+        setTimeout(() => alertElement.classList.add("show"), 10);
+      }
+      
+      this.alertContainer.appendChild(alertElement);
+    });
+  }
+
+  checkForWarnings() {
+    const firstNumber = this.numbers[0];
+    if (firstNumber !== undefined) {
+      const count = this.numbers.filter((n) => n === firstNumber).length;
+      this.warningMessage.textContent = count === 2 ? 
+        `Warning: Number ${firstNumber} (appears 2 times) is about to disappear!` : "";
+    }
+  }
+
+  render() {
+    this.numbersContainer.innerHTML = "";
+    const numbersToDisplay = this.numbers.slice(-42);
+    
+    for (let i = 0; i < 42; i++) {
+      const span = document.createElement("span");
+      span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || "";
+      
+      if (this.colorMap.red.has(numbersToDisplay[i])) span.style.color = "red";
+      else if (this.colorMap.black.has(numbersToDisplay[i])) span.style.color = "black";
+      else if (this.colorMap.green.has(numbersToDisplay[i])) span.style.color = "green";
+      
+      this.numbersContainer.appendChild(span);
+    }
+  }
+
+  undoLastEntry() {
+    if (this.numbers.length > 0) {
+      this.numbers.pop();
+      localStorage.setItem("numbers", JSON.stringify(this.numbers));
+      this.render();
+      this.checkForTriplets();
+      this.checkForWarnings();
+    }
+  }
+}
+
+new NumberTracker();
+        </script>
+    </div>
+</body>
+</html>
