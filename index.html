@@ -79,8 +79,16 @@ class NumberTracker {
     gameButton.textContent = "Switch to 6x7";
     gameButton.addEventListener("click", () => this.switchGame());
 
+    const gameButton2 = document.createElement("button");
+    gameButton2.textContent = "Switch to 2s (6x6)";
+    gameButton2.addEventListener("click", () => this.switchGame2());
 
-    buttonContainer.append(resetButton, smallerButton, gameButton);
+    const gameButton3 = document.createElement("button");
+    gameButton3.textContent = "Switch to 2s (6x7)";
+    gameButton3.addEventListener("click", () => this.switchGame3());
+
+
+    buttonContainer.append(resetButton, smallerButton, gameButton, gameButton2, gameButton3);
     document.body.insertBefore(buttonContainer, gameContainer);
 
     const header = document.createElement("div");
@@ -211,7 +219,15 @@ class NumberTracker {
   }
 
   switchGame() {
-    window.location.href = "index2.html";
+    window.location.href = "6x7.html";
+  }
+
+  switchGame2() {
+    window.location.href = "26x6.html";
+  }
+
+  switchGame3() {
+    window.location.href = "26x7.html";
   }
 
   checkForTriplets() {
