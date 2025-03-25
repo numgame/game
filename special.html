@@ -10,7 +10,7 @@
 <body>
     <div class="version">V1.9</div>
     <div class="password-container">
-        <div class="header">Number Game 6x6 (Special)</div>
+        <div class="header">Number Game 6x5 (Special)</div>
         <script>
 // Version: v1.9
 // If updating, increment version number and retain this comment
@@ -94,7 +94,7 @@ class NumberTracker {
 
     const header = document.createElement("div");
     header.className = "header";
-    header.textContent = "Number Game 6x6 (Special)";
+    header.textContent = "Number Game 6x5 (Special)";
     gameContainer.appendChild(header);
     
     this.numbersContainer = document.createElement("div");
@@ -198,7 +198,7 @@ class NumberTracker {
 
     this.errorMessage.textContent = "";
 
-    if (this.numbers.length >= 36) {
+    if (this.numbers.length >= 30) {
       this.numbers.shift();
     }
 
@@ -316,9 +316,9 @@ class NumberTracker {
 
   render() {
     this.numbersContainer.innerHTML = "";
-    const numbersToDisplay = this.numbers.slice(-36);
+    const numbersToDisplay = this.numbers.slice(-30);
     
-    for (let i = 0; i < 36; i++) {
+    for (let i = 0; i < 30; i++) {
       const span = document.createElement("span");
       span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || "";
       
