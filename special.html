@@ -244,7 +244,7 @@ class NumberTracker {
     const currentAlerts = new Set();
     for (const [num, count] of Object.entries(countMap)) {
       const numericNum = num === "00" ? "00" : parseInt(num, 10);
-      if (count >= 3) {
+      if (count >= 2) {
         currentAlerts.add(numericNum);
         // Update count if already exists
         if (this.alerts.has(numericNum)) {
@@ -307,7 +307,7 @@ class NumberTracker {
     const firstNumber = this.numbers[0];
     if (firstNumber !== undefined && this.trackedNumbers.has(firstNumber)) {
       const count = this.numbers.filter((n) => n === firstNumber).length;
-      this.warningMessage.textContent = count === 3 ? 
+      this.warningMessage.textContent = count === 2 ? 
         `Warning: Number ${firstNumber} (appears 3 times) is about to disappear!` : "";
     } else {
       this.warningMessage.textContent = "";
