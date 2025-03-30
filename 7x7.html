@@ -311,9 +311,9 @@ class NumberTracker {
 
   render() {
     this.numbersContainer.innerHTML = "";
-    const numbersToDisplay = this.numbers.slice(-49);
+    const numbersToDisplay = this.numbers.slice(-54);
     
-    for (let i = 0; i < 49; i++) {
+    for (let i = 0; i < 54; i++) {
       const span = document.createElement("span");
       span.textContent = numbersToDisplay[i] === 0 ? "0" : numbersToDisplay[i] || "";
       
